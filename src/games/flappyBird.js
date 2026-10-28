@@ -58,8 +58,7 @@ const GRAVITY       = 0.4;
 const JUMP_VELOCITY = -2.5;
 const PIPE_WIDTH    = 4;
 const PIPE_GAP      = 8;
-const PIPE_SPEED = 1;
-// Initial flight loop
+const PIPE_SPEED    = 1;
 const TICK_MS       = 80;
 
 // ─── Pipe factory ─────────────────────────────────────────────────────────────
