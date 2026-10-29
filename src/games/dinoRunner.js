@@ -112,8 +112,7 @@ async function playDinoRunner() {
   const DINO_X        = 10;
   const GRAVITY       = 0.6;
   const JUMP_VELOCITY = -3.5;
-  const TICK_MS = 60;
-// Initial jump loop
+  const TICK_MS       = 60;
 
   // ── Ensure raw mode ──────────────────────────────────────────────────────────
   process.stdin.setRawMode(true);
