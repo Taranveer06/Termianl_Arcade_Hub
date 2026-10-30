@@ -72,7 +72,6 @@ function runGame(onExit) {
   // Speed
   let tickMs    = 120;
   const MIN_TICK = 50;
-// Initial movement loop
   const roundStartTime = Date.now();
 
   // ── State ────────────────────────────────────────────────────────────────
