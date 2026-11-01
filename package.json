@@ -4,7 +4,8 @@
   "description": "A retro terminal arcade game launcher with Flappy Bird, Dino Runner, and Snake",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "test": "node tests/database.test.js && node tests/repositories.test.js"
   },
   "keywords": [
     "terminal",
@@ -13,5 +14,8 @@
     "cli"
   ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^13.2.0"
+  }
 }
