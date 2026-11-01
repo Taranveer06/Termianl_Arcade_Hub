@@ -1,0 +1,17 @@
+{
+  "name": "terminal-arcade-hub",
+  "version": "1.0.0",
+  "description": "A retro terminal arcade game launcher with Flappy Bird, Dino Runner, and Snake",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "keywords": [
+    "terminal",
+    "arcade",
+    "games",
+    "cli"
+  ],
+  "author": "",
+  "license": "MIT"
+}
