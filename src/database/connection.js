@@ -6,13 +6,30 @@ const fs = require('fs');
 const DATA_DIR = path.join(__dirname, '../../data');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
-const DB_PATH = path.join(DATA_DIR, 'arcade.db');
+const DEFAULT_DB_PATH = path.join(DATA_DIR, 'arcade.db');
 
 let _db = null;
+let _customDbPath = null;
+
+function setDbPath(customPath) {
+  if (_db) {
+    _db.close();
+    _db = null;
+  }
+  _customDbPath = customPath;
+}
+
+function getDbPath() {
+  return _customDbPath || process.env.ARCADE_DB_PATH || DEFAULT_DB_PATH;
+}
 
 function getDb() {
   if (!_db) {
-    _db = new Database(DB_PATH);
+    const dbPath = getDbPath();
+    const dir = path.dirname(dbPath);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+    _db = new Database(dbPath);
     _db.pragma('journal_mode = WAL');
     _db.pragma('foreign_keys = ON');
   }
@@ -26,4 +43,4 @@ function closeDb() {
   }
 }
 
-module.exports = { getDb, closeDb, DB_PATH };
+module.exports = { getDb, closeDb, setDbPath, getDbPath, DB_PATH: DEFAULT_DB_PATH };
