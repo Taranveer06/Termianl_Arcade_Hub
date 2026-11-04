@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test": "node tests/database.test.js && node tests/repositories.test.js"
+    "test": "node tests/database.test.js && node tests/repositories.test.js && node tests/migration.test.js && node tests/gameplay.test.js"
   },
   "keywords": [
     "terminal",
