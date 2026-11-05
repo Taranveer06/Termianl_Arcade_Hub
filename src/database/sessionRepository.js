@@ -63,4 +63,49 @@ function getRecentSessions(limit = 10) {
   `).all(limit);
 }
 
-module.exports = { saveSession, getTopScores, getPlayerHistory, getRecentSessions };
+function getPlayerHighScore(playerId, gameId) {
+  const db = getDb();
+  const row = db.prepare(`
+    SELECT MAX(score) AS high_score
+    FROM game_sessions
+    WHERE player_id = ? AND game_id = ?
+  `).get(playerId, gameId);
+  return row && row.high_score !== null ? row.high_score : 0;
+}
+
+function getPlayerBestByGameName(playerId, gameName) {
+  const db = getDb();
+  const row = db.prepare(`
+    SELECT MAX(gs.score) AS high_score
+    FROM game_sessions gs
+    JOIN games g ON g.game_id = gs.game_id
+    WHERE gs.player_id = ? AND g.game_name = ?
+  `).get(playerId, gameName);
+  return row && row.high_score !== null ? row.high_score : 0;
+}
+
+function getPlayerAllHighScores(playerId) {
+  const db = getDb();
+  const rows = db.prepare(`
+    SELECT g.game_name, COALESCE(MAX(gs.score), 0) AS high_score
+    FROM games g
+    LEFT JOIN game_sessions gs ON gs.game_id = g.game_id AND gs.player_id = ?
+    GROUP BY g.game_id
+    ORDER BY g.game_id
+  `).all(playerId);
+  const result = {};
+  for (const r of rows) {
+    result[r.game_name] = r.high_score;
+  }
+  return result;
+}
+
+module.exports = {
+  saveSession,
+  getTopScores,
+  getPlayerHistory,
+  getRecentSessions,
+  getPlayerHighScore,
+  getPlayerBestByGameName,
+  getPlayerAllHighScores
+};
