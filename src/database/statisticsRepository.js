@@ -56,4 +56,53 @@ function getGameStatistics() {
   `).all();
 }
 
-module.exports = { getTotalGamesPlayed, getAverageScore, getHighestScore, getMostPlayedGame, getGameStatistics };
+function getPlayerStatistics(playerId) {
+  const db = getDb();
+  const summary = db.prepare(`
+    SELECT
+      COUNT(*) AS total_sessions,
+      COALESCE(ROUND(AVG(score), 1), 0) AS avg_score,
+      COALESCE(MAX(score), 0) AS max_score
+    FROM game_sessions
+    WHERE player_id = ?
+  `).get(playerId);
+
+  const gameBreakdown = db.prepare(`
+    SELECT
+      g.game_name,
+      COUNT(gs.session_id) AS sessions,
+      COALESCE(ROUND(AVG(gs.score), 1), 0) AS avg_score,
+      COALESCE(MAX(gs.score), 0) AS max_score
+    FROM games g
+    LEFT JOIN game_sessions gs ON gs.game_id = g.game_id AND gs.player_id = ?
+    GROUP BY g.game_id
+    ORDER BY g.game_id
+  `).all(playerId);
+
+  const mostPlayed = db.prepare(`
+    SELECT g.game_name, COUNT(*) AS play_count
+    FROM game_sessions gs
+    JOIN games g ON g.game_id = gs.game_id
+    WHERE gs.player_id = ?
+    GROUP BY gs.game_id
+    ORDER BY play_count DESC
+    LIMIT 1
+  `).get(playerId);
+
+  return {
+    totalSessions: summary ? summary.total_sessions : 0,
+    avgScore: summary ? summary.avg_score : 0,
+    maxScore: summary ? summary.max_score : 0,
+    mostPlayedGame: mostPlayed ? `${mostPlayed.game_name} (${mostPlayed.play_count} games)` : 'None',
+    gameBreakdown: gameBreakdown || []
+  };
+}
+
+module.exports = {
+  getTotalGamesPlayed,
+  getAverageScore,
+  getHighestScore,
+  getMostPlayedGame,
+  getGameStatistics,
+  getPlayerStatistics
+};
