@@ -2,6 +2,7 @@
 const path = require('path');
 const fs = require('fs');
 const { getDb } = require('./connection');
+const { migrateScores } = require('./migrateScores');
 
 const SCHEMA_PATH = path.join(__dirname, 'schema.sql');
 
@@ -18,6 +19,13 @@ function initializeDatabase() {
   insert.run('Flappy Bird', 'Navigate a bird through pipes by flapping its wings. Each pipe cleared scores a point.');
   insert.run('Dino Runner', 'Run as far as possible avoiding obstacles. Speed increases over time — distance is your score.');
   insert.run('Snake', 'Eat food to grow your snake as long as possible. Avoid walls and yourself. Each food = 10 points.');
+
+  // Safely migrate any legacy records from scores.json into SQLite
+  try {
+    migrateScores();
+  } catch (err) {
+    console.error('[Database] Notice: Migration error:', err.message);
+  }
 }
 
 module.exports = { initializeDatabase };
