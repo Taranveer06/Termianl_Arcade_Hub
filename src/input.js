@@ -24,9 +24,11 @@ function onKeyPress(callback) {
   process.stdin.setEncoding('utf8');
 
   function handler(sequence) {
-    let key = sequence;
+    const raw = sequence.toString();
+    const normalized = (!raw.startsWith('\x1B') && raw.length > 1) ? raw.trim() : raw;
+    let key = normalized;
 
-    switch (sequence) {
+    switch (normalized) {
       case '\x1B[A': key = Key.UP; break;
       case '\x1B[B': key = Key.DOWN; break;
       case '\x1B[C': key = Key.RIGHT; break;
@@ -47,7 +49,7 @@ function onKeyPress(callback) {
       case 'D':       key = Key.D; break;
       case 'r':
       case 'R':       key = Key.R; break;
-      default:        key = sequence; break;
+      default:        key = normalized; break;
     }
 
     callback(key, sequence);
