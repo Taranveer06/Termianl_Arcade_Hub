@@ -1,5 +1,11 @@
 {
   "flappyBird": [],
-  "dinoRunner": [],
+  "dinoRunner": [
+    {
+      "name": "nakamakwmem",
+      "score": 106,
+      "date": "11/14/2026"
+    }
+  ],
   "snake": []
 }
