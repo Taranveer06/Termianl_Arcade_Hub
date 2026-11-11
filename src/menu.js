@@ -14,75 +14,95 @@ const ASCII_TITLE = [
   '   ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██║██║╚██╗██║██╔══██║██║',
   '   ██║   ███████╗██║  ██║██║ ╚═╝ ██║██║██║ ╚████║██║  ██║███████╗',
   '   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝╚══════╝',
-  '',
-  ' █████╗ ██████╗  ██████╗ █████╗ ██████╗ ███████╗',
-  '██╔══██╗██╔══██╗██╔════╝██╔══██╗██╔══██╗██╔════╝',
-  '███████║██████╔╝██║     ███████║██║  ██║█████╗  ',
-  '██╔══██║██╔══██╗██║     ██╔══██║██║  ██║██╔══╝  ',
-  '██║  ██║██║  ██║╚██████╗██║  ██║██████╔╝███████╗',
-  '╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═════╝ ╚══════╝',
-  '',
-  '██╗  ██╗██╗   ██╗██████╗ ',
-  '██║  ██║██║   ██║██╔══██╗',
-  '███████║██║   ██║██████╔╝',
-  '██╔══██║██║   ██║██╔══██╗',
-  '██║  ██║╚██████╔╝██████╔╝',
-  '╚═╝  ╚═╝ ╚═════╝ ╚═════╝ '
+  '     █████╗ ██████╗  ██████╗ █████╗ ██████╗ ███████╗',
+  '    ██╔══██╗██╔══██╗██╔════╝██╔══██╗██╔══██╗██╔════╝',
+  '    ███████║██████╔╝██║     ███████║██║  ██║█████╗  ',
+  '    ██╔══██║██╔══██╗██║     ██╔══██║██║  ██║██╔══╝  ',
+  '    ██║  ██║██║  ██║╚██████╗██║  ██║██████╔╝███████╗',
+  '    ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚═════╝ ╚══════╝'
 ];
 
 const MENU_ITEMS = [
-  { emoji: '🐦', name: 'Play Flappy Bird',        desc: 'Navigate through pipes! Press SPACE to flap.' },
-  { emoji: '🦕', name: 'Play Dino Runner',        desc: 'Jump over obstacles! Press SPACE to jump.' },
-  { emoji: '🐍', name: 'Play Snake',              desc: 'Eat food, grow longer! Use arrow keys or WASD.' },
-  { emoji: '🌍', name: 'View Global Leaderboard', desc: 'Top scores for each game from database.' },
-  { emoji: '📜', name: 'View My Game History',    desc: 'Your personal session history and scores.' },
-  { emoji: '👤', name: 'View Player Statistics',  desc: 'Your stats, high scores and aggregates.' },
-  { emoji: '🚪', name: 'Exit',                    desc: 'Quit the arcade.' }
+  { emoji: '🐦', name: 'Play Flappy Bird',       gameKey: 'Flappy Bird', desc: 'Flap wings & navigate pipe gaps!' },
+  { emoji: '🦕', name: 'Play Dino Runner',       gameKey: 'Dino Runner', desc: 'Leap over obstacles at ramping speed!' },
+  { emoji: '🐍', name: 'Play Snake',             gameKey: 'Snake',       desc: 'Eat food & grow longer without crashing!' },
+  { emoji: '🏆', name: 'Global Leaderboard',     gameKey: null,          desc: 'Top 5 scores per game across all players' },
+  { emoji: '📜', name: 'My Game History',         gameKey: null,          desc: 'Personal game sessions and timestamps' },
+  { emoji: '📊', name: 'Player Statistics',       gameKey: null,          desc: 'Personal stats, averages and records' },
+  { emoji: '🚪', name: 'Exit',                   gameKey: null,          desc: 'Leave the arcade' }
 ];
 
 function drawMenu(selectedIndex, player) {
   const { cols, rows } = renderer.getTerminalSize();
   renderer.clear();
+  renderer.hideCursor();
 
-  // Outer border box
-  renderer.drawBox(1, 1, cols, rows, renderer.colors.cyan);
+  // Outer neon double border
+  renderer.drawDoubleBox(1, 1, cols, rows, renderer.colors.brightCyan);
 
-  // Center title block
+  // Center title banner
   const titleStartY = 2;
-  const titleStartX = Math.max(2, Math.floor((cols - 65) / 2));
+  const titleStartX = Math.max(2, Math.floor((cols - 62) / 2));
   renderer.drawAsciiArt(titleStartX, titleStartY, ASCII_TITLE, renderer.colors.brightYellow);
 
-  // Tagline with player name
-  const username = player ? player.username : 'Player';
-  const tagline = `[ LOGGED IN AS: ${username.toUpperCase()} | READY TO PLAY ]`;
+  // Welcome & Player status bar
+  const username = player ? player.username : 'PLAYER';
+  const tagline = `⚡ WELCOME, ${username.toUpperCase()}! | RETRO ARCADE HUB READY ⚡`;
   const tagX = Math.max(2, Math.floor((cols - tagline.length) / 2));
   const tagY = titleStartY + ASCII_TITLE.length + 1;
-  renderer.writeAt(tagX, tagY, tagline, renderer.colors.cyan);
+  renderer.writeAt(tagX, tagY, tagline, renderer.colors.brightGreen);
 
-  // Menu items
-  const menuStartY = tagY + 2;
+  // Arcade quick stats summary
+  let arcadeTotal = 0;
+  let arcadeHigh = 0;
+  try {
+    arcadeTotal = statisticsRepository.getTotalGamesPlayed();
+    arcadeHigh = statisticsRepository.getHighestScore();
+  } catch (_) {}
+  const statsBar = `[ Arcade Stats: ${arcadeTotal} Sessions Recorded | All-Time High Score: ${arcadeHigh} ]`;
+  const statsBarX = Math.max(2, Math.floor((cols - statsBar.length) / 2));
+  renderer.writeAt(statsBarX, tagY + 1, statsBar, renderer.colors.cyan);
+
+  // Fetch personal high scores for all games
+  let playerHighs = {};
+  if (player && player.player_id) {
+    try {
+      playerHighs = sessionRepository.getPlayerAllHighScores(player.player_id);
+    } catch (_) {}
+  }
+
+  // Menu items list
+  const menuStartY = tagY + 3;
   MENU_ITEMS.forEach((item, i) => {
-    const prefix = `  ${i + 1}. ${item.emoji} ${item.name}`;
-    const desc = `  — ${item.desc}`;
-    const line = prefix + desc;
-    const lineX = Math.max(4, Math.floor((cols - line.length) / 2));
-    const lineY = menuStartY + i * 2;
+    let bestText = '';
+    if (item.gameKey) {
+      const best = playerHighs[item.gameKey] || 0;
+      bestText = ` [Best: ${best}]`;
+    }
 
-    if (i === selectedIndex) {
-      renderer.moveCursor(lineX - 1, lineY);
-      process.stdout.write(
-        `\x1B[${renderer.colors.brightGreen}m\x1B[1m ${line} \x1B[0m`
-      );
-    } else {
-      renderer.writeAt(lineX, lineY, line, renderer.colors.white);
+    const prefix = `${i + 1}. ${item.emoji} ${item.name.padEnd(20)}${bestText.padEnd(14)}`;
+    const desc = `— ${item.desc}`;
+    const fullLine = `${prefix}  ${desc}`;
+    const maxLineLen = cols - 8;
+    const truncatedLine = fullLine.length > maxLineLen ? fullLine.slice(0, maxLineLen - 1) + '…' : fullLine;
+    const lineX = Math.max(4, Math.floor((cols - truncatedLine.length) / 2));
+    const lineY = menuStartY + i;
+
+    if (lineY < rows - 2) {
+      if (i === selectedIndex) {
+        renderer.moveCursor(lineX - 2, lineY);
+        process.stdout.write(
+          `\x1B[${renderer.colors.bgCyan}m\x1B[30m\x1B[1m ▶ ${truncatedLine} ◀ \x1B[0m`
+        );
+      } else {
+        renderer.writeAt(lineX, lineY, truncatedLine, renderer.colors.brightWhite);
+      }
     }
   });
 
-  // Bottom hint
-  const hint = '↑↓ Navigate   Enter Select   1-7 Direct Choice   Q Quit';
-  renderer.writeAt(Math.max(2, Math.floor((cols - hint.length) / 2)), rows - 1, hint, renderer.colors.brightCyan);
-
-  renderer.moveCursor(1, rows);
+  // Bottom navigation instructions
+  const hint = '↑/↓ Navigate   |   ENTER Select   |   1-7 Direct Pick   |   Q / ESC Exit';
+  renderer.writeAt(Math.max(2, Math.floor((cols - hint.length) / 2)), rows - 1, hint, renderer.colors.brightYellow);
 }
 
 function waitForKey() {
@@ -97,9 +117,9 @@ function waitForKey() {
 async function showGlobalLeaderboard() {
   const { cols, rows } = renderer.getTerminalSize();
   renderer.clear();
-  renderer.drawBox(1, 1, cols, rows, renderer.colors.yellow);
+  renderer.drawDoubleBox(1, 1, cols, rows, renderer.colors.brightYellow);
 
-  const title = '🏆  GLOBAL LEADERBOARD (TOP 5 PER GAME)  🏆';
+  const title = '🏆  GLOBAL ARCADE LEADERBOARD (TOP 5 PER GAME)  🏆';
   renderer.writeAt(Math.max(2, Math.floor((cols - title.length) / 2)), 2, title, renderer.colors.brightYellow);
 
   const gameDefs = [
@@ -108,38 +128,41 @@ async function showGlobalLeaderboard() {
     { name: 'Snake',       emoji: '🐍' }
   ];
 
-  const colWidth = Math.max(24, Math.floor((cols - 6) / 3));
+  const colWidth = Math.max(24, Math.floor((cols - 8) / 3));
 
   gameDefs.forEach((g, gi) => {
     const startX = 4 + gi * colWidth;
     renderer.writeAt(startX, 4, `${g.emoji} ${g.name}`, renderer.colors.brightCyan);
-    renderer.writeAt(startX, 5, '─'.repeat(Math.min(colWidth - 2, 28)), renderer.colors.cyan);
+    renderer.writeAt(startX, 5, '═'.repeat(Math.min(colWidth - 3, 26)), renderer.colors.cyan);
 
     try {
       const gameRecord = gameRepository.getGameByName(g.name);
       if (!gameRecord) {
-        renderer.writeAt(startX, 6, 'No game data', renderer.colors.white);
+        renderer.writeAt(startX, 7, 'No game record', renderer.colors.white);
         return;
       }
 
       const topScores = sessionRepository.getTopScores(gameRecord.game_id, 5);
       if (!topScores || topScores.length === 0) {
-        renderer.writeAt(startX, 6, 'No scores yet', renderer.colors.white);
+        renderer.writeAt(startX, 7, 'No scores recorded yet', renderer.colors.white);
       } else {
+        const medals = ['🥇', '🥈', '🥉', '4.', '5.'];
         topScores.forEach((entry, i) => {
-          const user = (entry.username || 'Anonymous').slice(0, 8).padEnd(8);
+          const medal = medals[i] || `${i + 1}.`;
+          const user = (entry.username || 'Anonymous').slice(0, 9).padEnd(9);
           const sc = String(entry.score).padStart(5);
           const dateStr = entry.played_at ? entry.played_at.slice(0, 10) : '';
-          const line = `${i + 1}. ${user} ${sc} (${dateStr})`;
-          renderer.writeAt(startX, 6 + i * 2, line, renderer.colors.white);
+          const line = `${medal} ${user} ${sc} (${dateStr})`;
+          const colorCode = i === 0 ? renderer.colors.brightYellow : (i === 1 ? renderer.colors.brightWhite : (i === 2 ? renderer.colors.yellow : renderer.colors.white));
+          renderer.writeAt(startX, 7 + i * 2, line, colorCode);
         });
       }
     } catch (err) {
-      renderer.writeAt(startX, 6, 'Error loading scores', renderer.colors.red);
+      renderer.writeAt(startX, 7, `Error: ${err.message}`, renderer.colors.red);
     }
   });
 
-  const hint = 'Press any key to return to the menu...';
+  const hint = 'Press any key to return to the Main Menu...';
   renderer.writeAt(Math.max(2, Math.floor((cols - hint.length) / 2)), rows - 2, hint, renderer.colors.brightMagenta);
 
   await waitForKey();
@@ -148,10 +171,10 @@ async function showGlobalLeaderboard() {
 async function showPlayerHistory(player) {
   const { cols, rows } = renderer.getTerminalSize();
   renderer.clear();
-  renderer.drawBox(1, 1, cols, rows, renderer.colors.blue);
+  renderer.drawDoubleBox(1, 1, cols, rows, renderer.colors.brightBlue);
 
   const username = player ? player.username : 'PLAYER';
-  const title = `📜  GAME HISTORY FOR: ${username.toUpperCase()}  📜`;
+  const title = `📜  PERSONAL GAME HISTORY FOR: ${username.toUpperCase()}  📜`;
   renderer.writeAt(Math.max(2, Math.floor((cols - title.length) / 2)), 2, title, renderer.colors.brightCyan);
 
   try {
@@ -159,10 +182,10 @@ async function showPlayerHistory(player) {
 
     const header = '  #   GAME            SCORE    DURATION     DATE & TIME';
     renderer.writeAt(4, 4, header, renderer.colors.brightYellow);
-    renderer.writeAt(4, 5, '─'.repeat(Math.min(cols - 8, 65)), renderer.colors.cyan);
+    renderer.writeAt(4, 5, '═'.repeat(Math.min(cols - 8, 65)), renderer.colors.cyan);
 
     if (!history || history.length === 0) {
-      renderer.writeAt(6, 7, 'No games played yet. Play a game to record your session!', renderer.colors.white);
+      renderer.writeAt(6, 7, 'No games played yet! Jump into Flappy Bird, Dino Runner, or Snake to record your sessions.', renderer.colors.white);
     } else {
       const maxRows = Math.min(history.length, rows - 9);
       for (let i = 0; i < maxRows; i++) {
@@ -177,10 +200,10 @@ async function showPlayerHistory(player) {
       }
     }
   } catch (err) {
-    renderer.writeAt(6, 7, 'Error reading player history from database.', renderer.colors.red);
+    renderer.writeAt(6, 7, `Error reading player history: ${err.message}`, renderer.colors.red);
   }
 
-  const hint = 'Press any key to return to the menu...';
+  const hint = 'Press any key to return to the Main Menu...';
   renderer.writeAt(Math.max(2, Math.floor((cols - hint.length) / 2)), rows - 2, hint, renderer.colors.brightMagenta);
 
   await waitForKey();
@@ -189,67 +212,48 @@ async function showPlayerHistory(player) {
 async function showPlayerStatistics(player) {
   const { cols, rows } = renderer.getTerminalSize();
   renderer.clear();
-  renderer.drawBox(1, 1, cols, rows, renderer.colors.green);
+  renderer.drawDoubleBox(1, 1, cols, rows, renderer.colors.brightGreen);
 
   const username = player ? player.username : 'PLAYER';
-  const title = `👤  STATISTICS FOR: ${username.toUpperCase()}  👤`;
+  const title = `📊  STATISTICS DASHBOARD: ${username.toUpperCase()}  📊`;
   renderer.writeAt(Math.max(2, Math.floor((cols - title.length) / 2)), 2, title, renderer.colors.brightGreen);
 
   try {
-    const history = player ? sessionRepository.getPlayerHistory(player.player_id) : [];
-    const totalSessions = history.length;
+    const stats = player ? statisticsRepository.getPlayerStatistics(player.player_id) : null;
+    const startX = 6;
 
-    let highestScore = 0;
-    let scoreSum = 0;
-    const gameCounts = { 'Flappy Bird': 0, 'Dino Runner': 0, 'Snake': 0 };
-    const gameHighs = { 'Flappy Bird': 0, 'Dino Runner': 0, 'Snake': 0 };
+    renderer.writeAt(startX, 4, '── PERSONAL SUMMARY ──────────────────────────────────────', renderer.colors.brightYellow);
+    renderer.writeAt(startX, 5, `• Total Sessions Played : ${stats ? stats.totalSessions : 0}`, renderer.colors.white);
+    renderer.writeAt(startX, 6, `• Personal High Score   : ${stats ? stats.maxScore : 0}`, renderer.colors.brightYellow);
+    renderer.writeAt(startX, 7, `• Average Score         : ${stats ? stats.avgScore : 0}`, renderer.colors.white);
+    renderer.writeAt(startX, 8, `• Most Played Game      : ${stats ? stats.mostPlayedGame : 'None'}`, renderer.colors.white);
 
-    history.forEach((h) => {
-      if (h.score > highestScore) highestScore = h.score;
-      scoreSum += h.score;
-      if (gameCounts[h.game_name] !== undefined) {
-        gameCounts[h.game_name]++;
-        if (h.score > gameHighs[h.game_name]) gameHighs[h.game_name] = h.score;
-      }
-    });
-
-    const avgScore = totalSessions > 0 ? (scoreSum / totalSessions).toFixed(1) : 0;
-
-    let mostPlayed = 'None';
-    let maxPlayedCount = 0;
-    for (const [name, count] of Object.entries(gameCounts)) {
-      if (count > maxPlayedCount) {
-        maxPlayedCount = count;
-        mostPlayed = `${name} (${count} games)`;
-      }
+    renderer.writeAt(startX, 10, '── BREAKDOWN PER GAME ────────────────────────────────────', renderer.colors.brightYellow);
+    if (stats && stats.gameBreakdown && stats.gameBreakdown.length > 0) {
+      stats.gameBreakdown.forEach((gb, idx) => {
+        const line = `• ${gb.game_name.padEnd(12)} : ${String(gb.sessions).padStart(2)} sessions  |  High: ${String(gb.max_score).padStart(4)}  |  Avg: ${gb.avg_score}`;
+        renderer.writeAt(startX, 11 + idx, line, renderer.colors.white);
+      });
+    } else {
+      renderer.writeAt(startX, 11, '• No game records available.', renderer.colors.white);
     }
 
-    const startX = 6;
-    renderer.writeAt(startX, 4, '── PERSONAL SUMMARY ──────────────────────────', renderer.colors.yellow);
-    renderer.writeAt(startX, 5, `• Total Games Played:  ${totalSessions}`, renderer.colors.white);
-    renderer.writeAt(startX, 6, `• Overall High Score:  ${highestScore}`, renderer.colors.brightYellow);
-    renderer.writeAt(startX, 7, `• Average Score:       ${avgScore}`, renderer.colors.white);
-    renderer.writeAt(startX, 8, `• Most Played Game:    ${mostPlayed}`, renderer.colors.white);
-
-    renderer.writeAt(startX, 10, '── BREAKDOWN PER GAME ────────────────────────', renderer.colors.yellow);
-    renderer.writeAt(startX, 11, `• Flappy Bird:  ${gameCounts['Flappy Bird']} played | High Score: ${gameHighs['Flappy Bird']}`, renderer.colors.white);
-    renderer.writeAt(startX, 12, `• Dino Runner:  ${gameCounts['Dino Runner']} played | High Score: ${gameHighs['Dino Runner']}`, renderer.colors.white);
-    renderer.writeAt(startX, 13, `• Snake:        ${gameCounts['Snake']} played | High Score: ${gameHighs['Snake']}`, renderer.colors.white);
-
-    // Global stats comparison
+    // Global arcade benchmarks
     const globalTotal = statisticsRepository.getTotalGamesPlayed();
     const globalAvg = statisticsRepository.getAverageScore();
     const globalHigh = statisticsRepository.getHighestScore();
+    const mostPopular = statisticsRepository.getMostPlayedGame();
 
-    renderer.writeAt(startX, 15, '── GLOBAL ARCADE BENCHMARKS ──────────────────', renderer.colors.cyan);
-    renderer.writeAt(startX, 16, `• Arcade Total Sessions: ${globalTotal}`, renderer.colors.white);
-    renderer.writeAt(startX, 17, `• Arcade Average Score:  ${Number(globalAvg).toFixed(1)}`, renderer.colors.white);
-    renderer.writeAt(startX, 18, `• Arcade All-Time High:  ${globalHigh}`, renderer.colors.brightGreen);
+    renderer.writeAt(startX, 15, '── GLOBAL ARCADE BENCHMARKS ──────────────────────────────', renderer.colors.brightCyan);
+    renderer.writeAt(startX, 16, `• Total Arcade Sessions : ${globalTotal}`, renderer.colors.white);
+    renderer.writeAt(startX, 17, `• Global Average Score  : ${Number(globalAvg).toFixed(1)}`, renderer.colors.white);
+    renderer.writeAt(startX, 18, `• All-Time Arcade High  : ${globalHigh}`, renderer.colors.brightGreen);
+    renderer.writeAt(startX, 19, `• Most Popular Game     : ${mostPopular}`, renderer.colors.white);
   } catch (err) {
-    renderer.writeAt(6, 6, 'Error loading player statistics.', renderer.colors.red);
+    renderer.writeAt(6, 6, `Error loading player statistics: ${err.message}`, renderer.colors.red);
   }
 
-  const hint = 'Press any key to return to the menu...';
+  const hint = 'Press any key to return to the Main Menu...';
   renderer.writeAt(Math.max(2, Math.floor((cols - hint.length) / 2)), rows - 2, hint, renderer.colors.brightMagenta);
 
   await waitForKey();
@@ -258,6 +262,14 @@ async function showPlayerStatistics(player) {
 async function showMainMenu(player) {
   let selectedIndex = 0;
   let running = true;
+
+  // Handle window resizing
+  const onResize = () => {
+    if (running) {
+      drawMenu(selectedIndex, player);
+    }
+  };
+  process.stdout.on('resize', onResize);
 
   while (running) {
     drawMenu(selectedIndex, player);
@@ -294,7 +306,7 @@ async function showMainMenu(player) {
         } catch (e) {
           renderer.clear();
           renderer.writeAt(4, 4, `Flappy Bird error: ${e.message}`, renderer.colors.red);
-          renderer.writeAt(4, 6, 'Press any key to return...', renderer.colors.white);
+          renderer.writeAt(4, 6, 'Press any key to return to menu...', renderer.colors.white);
           await waitForKey();
         }
         break;
@@ -307,7 +319,7 @@ async function showMainMenu(player) {
         } catch (e) {
           renderer.clear();
           renderer.writeAt(4, 4, `Dino Runner error: ${e.message}`, renderer.colors.red);
-          renderer.writeAt(4, 6, 'Press any key to return...', renderer.colors.white);
+          renderer.writeAt(4, 6, 'Press any key to return to menu...', renderer.colors.white);
           await waitForKey();
         }
         break;
@@ -320,7 +332,7 @@ async function showMainMenu(player) {
         } catch (e) {
           renderer.clear();
           renderer.writeAt(4, 4, `Snake error: ${e.message}`, renderer.colors.red);
-          renderer.writeAt(4, 6, 'Press any key to return...', renderer.colors.white);
+          renderer.writeAt(4, 6, 'Press any key to return to menu...', renderer.colors.white);
           await waitForKey();
         }
         break;
@@ -343,6 +355,7 @@ async function showMainMenu(player) {
       case 6: {
         // Exit
         running = false;
+        process.stdout.removeListener('resize', onResize);
         renderer.clear();
         renderer.showCursor();
         console.log('\nThanks for playing Terminal Arcade Hub! Goodbye!\n');
@@ -351,6 +364,8 @@ async function showMainMenu(player) {
       }
     }
   }
+
+  process.stdout.removeListener('resize', onResize);
 }
 
 module.exports = {
