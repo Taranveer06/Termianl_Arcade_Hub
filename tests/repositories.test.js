@@ -1,14 +1,29 @@
 'use strict';
 
 const assert = require('assert');
+const path = require('path');
+const fs = require('fs');
+const { setDbPath, closeDb, getDb } = require('../src/database/connection');
+
+const TEST_REPO_DB = path.join(__dirname, 'test_repositories.db');
+
+function cleanupDb() {
+  closeDb();
+  if (fs.existsSync(TEST_REPO_DB)) fs.unlinkSync(TEST_REPO_DB);
+  if (fs.existsSync(TEST_REPO_DB + '-wal')) fs.unlinkSync(TEST_REPO_DB + '-wal');
+  if (fs.existsSync(TEST_REPO_DB + '-shm')) fs.unlinkSync(TEST_REPO_DB + '-shm');
+}
+
+cleanupDb();
+setDbPath(TEST_REPO_DB);
+
 const playerRepo = require('../src/database/playerRepository');
 const gameRepo = require('../src/database/gameRepository');
 const sessionRepo = require('../src/database/sessionRepository');
 const statsRepo = require('../src/database/statisticsRepository');
 const { initializeDatabase } = require('../src/database/initialize');
-const { getDb } = require('../src/database/connection');
 
-console.log('🧪 Testing Repositories with live DB connection...');
+console.log('🧪 Testing Repositories with isolated temporary DB...');
 
 initializeDatabase();
 const db = getDb();
@@ -42,12 +57,27 @@ const sess = sessionRepo.saveSession({
 assert(sess && sess.score === 88);
 console.log('  ✔ sessionRepository saveSession works correctly');
 
+// Test personal high scores
+const flappyHigh = sessionRepo.getPlayerHighScore(p1.player_id, flappy.game_id);
+assert.strictEqual(flappyHigh, 88, 'Personal high score for Flappy Bird should be 88');
+
+const allHighs = sessionRepo.getPlayerAllHighScores(p1.player_id);
+assert.strictEqual(allHighs['Flappy Bird'], 88);
+assert.strictEqual(allHighs['Dino Runner'], 0);
+assert.strictEqual(allHighs['Snake'], 0);
+console.log('  ✔ sessionRepository getPlayerHighScore & getPlayerAllHighScores work correctly');
+
 // Test stats
 const total = statsRepo.getTotalGamesPlayed();
 assert(total >= 1, 'Total games played should be >= 1');
 const high = statsRepo.getHighestScore();
 assert(high >= 88);
-console.log('  ✔ statisticsRepository aggregate queries work correctly');
+
+const playerStats = statsRepo.getPlayerStatistics(p1.player_id);
+assert.strictEqual(playerStats.totalSessions, 1);
+assert.strictEqual(playerStats.maxScore, 88);
+assert.strictEqual(playerStats.avgScore, 88);
+console.log('  ✔ statisticsRepository aggregate and player queries work correctly');
 
 // Test game module loading
 assert(typeof require('../src/games/flappyBird').play === 'function');
@@ -55,4 +85,5 @@ assert(typeof require('../src/games/dinoRunner').play === 'function');
 assert(typeof require('../src/games/snake').play === 'function');
 console.log('  ✔ All three game modules export a valid play() function');
 
+cleanupDb();
 console.log('\n🎉 ALL REPOSITORY INTEGRATION TESTS PASSED!\n');
