@@ -109,5 +109,3 @@ module.exports = {
   centerText,
   drawAsciiArt
 };
-
-// Auto layout dimensions
