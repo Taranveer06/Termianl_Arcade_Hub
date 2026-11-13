@@ -166,3 +166,36 @@ ORDER BY g.game_id;
 - Uses `LEFT JOIN` so games with 0 recorded sessions still appear in the catalog table with null or 0 counts.
 - `GROUP BY g.game_id` aggregates metrics per title.
 - `ROUND(..., 1)` formats decimal averages for clean terminal rendering.
+
+---
+
+## 8. Player Personal High Scores and Stats
+
+### Player High Score for Specific Game
+```sql
+SELECT MAX(score) AS high_score
+FROM game_sessions
+WHERE player_id = ? AND game_id = ?;
+```
+**Explanation**: Retrieves the single highest score achieved by a specific player in a given game, returning 0 if no games have been played.
+
+### Player All Game High Scores (LEFT JOIN + GROUP BY)
+```sql
+SELECT g.game_name, COALESCE(MAX(gs.score), 0) AS high_score
+FROM games g
+LEFT JOIN game_sessions gs ON gs.game_id = g.game_id AND gs.player_id = ?
+GROUP BY g.game_id
+ORDER BY g.game_id;
+```
+**Explanation**: Uses a `LEFT JOIN` on `games` constrained to `player_id` so that all seeded games are returned with either the player's personal best or 0 if unplayed.
+
+### Player Personal Summary & Breakdown
+```sql
+SELECT
+  COUNT(*) AS total_sessions,
+  COALESCE(ROUND(AVG(score), 1), 0) AS avg_score,
+  COALESCE(MAX(score), 0) AS max_score
+FROM game_sessions
+WHERE player_id = ?;
+```
+**Explanation**: Aggregates the total rounds, overall average score, and personal best across all games for the logged-in player.
