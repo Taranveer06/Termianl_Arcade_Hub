@@ -13,7 +13,24 @@
     "games",
     "cli"
   ],
-  "author": "",
+  "author": "Taranveer Singh <taranveersidhu302521@gmail.com>",
+  "contributors": [
+    {
+      "name": "Taranveer Singh",
+      "email": "taranveersidhu302521@gmail.com",
+      "url": "https://github.com/Taranveer06"
+    },
+    {
+      "name": "Shikhar Verma",
+      "email": "shikharverma018@users.noreply.github.com",
+      "url": "https://github.com/shikharverma018"
+    },
+    {
+      "name": "Akshat Kanwar",
+      "email": "akshat2907-web@users.noreply.github.com",
+      "url": "https://github.com/akshat2907-web"
+    }
+  ],
   "license": "MIT",
   "dependencies": {
     "better-sqlite3": "^13.2.0"
