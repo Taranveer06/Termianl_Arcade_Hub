@@ -229,6 +229,21 @@ npm test
 - [x] Statistical aggregations (`COUNT`, `AVG`, `MAX`)
 - [x] Database persistence across connection restarts
 - [x] Live repository methods and game exports
+- [x] Terminal audio cues & sound configuration settings
+
+---
+
+## 👥 Contributors & Team Members
+
+This project is actively engineered and maintained by a 3-member team:
+
+| Contributor | Role & Contributions | GitHub Profile |
+|:---|:---|:---:|
+| **Taranveer Singh** | **Project Lead** — Core terminal engine, ANSI canvas renderer, raw input loop, game physics (Flappy Bird, Dino Runner, Snake), SQLite relational schema & WAL persistence. | [![GitHub](https://img.shields.io/badge/GitHub-Taranveer06-181717?style=flat&logo=github)](https://github.com/Taranveer06) |
+| **Shikhar Verma** | **Core Contributor** — Startup login prompt, 7-option main arcade menu, interactive help screens, developer guidelines, and contributor documentation. | [![GitHub](https://img.shields.io/badge/GitHub-shikharverma018-181717?style=flat&logo=github)](https://github.com/shikharverma018) |
+| **Akshat Kanwar** | **Core Contributor** — Database repositories (player, game, session, statistics), multi-table JOIN leaderboards, terminal audio bell cues, and integration testing. | [![GitHub](https://img.shields.io/badge/GitHub-akshat2907--web-181717?style=flat&logo=github)](https://github.com/akshat2907-web) |
+
+Contributions and pull requests are welcomed! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines.
 
 ---
 
