@@ -52,9 +52,10 @@ function drawMenu(selectedIndex, player) {
   const titleStartX = Math.max(2, Math.floor((cols - 65) / 2));
   renderer.drawAsciiArt(titleStartX, titleStartY, ASCII_TITLE, renderer.colors.brightYellow);
 
-  // Tagline with player name
+  // Tagline with player name and sound status
   const username = player ? player.username : 'Player';
-  const tagline = `[ LOGGED IN AS: ${username.toUpperCase()} | READY TO PLAY ]`;
+  const soundStatus = renderer.isSoundEnabled ? (renderer.isSoundEnabled() ? 'AUDIO: ON' : 'AUDIO: OFF') : 'AUDIO: ON';
+  const tagline = `[ LOGGED IN AS: ${username.toUpperCase()} | ${soundStatus} | READY TO PLAY ]`;
   const tagX = Math.max(2, Math.floor((cols - tagline.length) / 2));
   const tagY = titleStartY + ASCII_TITLE.length + 1;
   renderer.writeAt(tagX, tagY, tagline, renderer.colors.cyan);
