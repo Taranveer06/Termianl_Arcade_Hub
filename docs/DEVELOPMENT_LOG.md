@@ -36,7 +36,10 @@ Every development milestone corresponds directly to an immutable Git commit in t
 | **Nov 11, 2026 — 11:23** | Stage 17 | Database repositories for player management, game catalog, sessions, statistics | `src/database/*.js` | `74e656f` |
 | **Nov 11, 2026 — 18:44** | Stage 18 | Session state coordinator and gameplay completion hooks for all 3 games | `src/gameState.js`, `src/games/*.js` | `901ffa4` |
 | **Nov 13, 2026 — 13:34** | Stage 19 | Automatic database bootstrapper, startup login prompt, 7-option arcade menu | `src/index.js`, `src/menu.js` | `04b5eca` |
-| **Nov 13, 2026 — 17:49** | Stage 20 | Automated test suites, database architecture docs, ER diagram, and README | `tests/`, `docs/`, `README.md` | `d9eaa3b` |
+| **Nov 13, 2026 — 17:49** | Stage 20 | Automated test suites, database architecture docs, ER diagram, and README | `tests/`, `docs/`, `README.md` | `bf28c3b` |
+| **Nov 25, 2026 — 09:32** | Stage 21 | Terminal audio cues, sound configuration support, and session statistics export | `src/renderer.js`, `src/database/statisticsRepository.js`, `tests/renderer.test.js` | `44b5a8f` |
+| **Nov 25, 2026 — 09:32** | Stage 22 | Sound status indicator and retro arcade menu enhancements | `src/menu.js` | `d0d57ba` |
+| **Nov 25, 2026 — 09:33** | Stage 23 | Project contributor directory, architecture documentation, and contribution guidelines | `CONTRIBUTING.md`, `README.md`, `package.json`, `.mailmap` | `3d72275` |
 
 ---
 
