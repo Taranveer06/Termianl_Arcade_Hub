@@ -56,4 +56,21 @@ function getGameStatistics() {
   `).all();
 }
 
-module.exports = { getTotalGamesPlayed, getAverageScore, getHighestScore, getMostPlayedGame, getGameStatistics };
+function exportSessionSummary() {
+  const stats = getGameStatistics();
+  const total = getTotalGamesPlayed();
+  return {
+    generatedAt: new Date().toISOString(),
+    totalSessions: total,
+    games: stats
+  };
+}
+
+module.exports = {
+  getTotalGamesPlayed,
+  getAverageScore,
+  getHighestScore,
+  getMostPlayedGame,
+  getGameStatistics,
+  exportSessionSummary
+};

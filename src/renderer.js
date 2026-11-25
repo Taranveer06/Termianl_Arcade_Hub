@@ -18,6 +18,22 @@ const colors = {
   bgBlack: 40
 };
 
+let soundEnabled = true;
+
+function setSoundEnabled(enabled) {
+  soundEnabled = Boolean(enabled);
+}
+
+function isSoundEnabled() {
+  return soundEnabled;
+}
+
+function beep() {
+  if (soundEnabled && process.stdout.isTTY) {
+    process.stdout.write('\x07');
+  }
+}
+
 function clear() {
   process.stdout.write('\x1B[2J\x1B[H');
 }
@@ -107,5 +123,8 @@ module.exports = {
   writeAt,
   getTerminalSize,
   centerText,
-  drawAsciiArt
+  drawAsciiArt,
+  beep,
+  setSoundEnabled,
+  isSoundEnabled
 };
